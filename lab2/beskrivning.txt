@@ -1,0 +1,329 @@
+I denna laboration kommer du att skriva spelet Chomp. Se wikipedia om Chomp Links to an external site.. Att skriva ett komplett program som kan köras på en webbläsare kan vara rätt svårt eftersom det är många saker som man behöver tänka på i webbprogrammering. Därför har vi delat upp labben till tre delar som varje del har fokus på sin egen sak. Det blir samtidigt ett strukturerat och bra tillvägagångssätt när man utvecklar program för webben. Alla tre delarna måste redovisas separat och koden placeras i respektive mapp på git. Lintningen ska varken producera några fel eller varningar och de medföljande reglerna ska användas utan modifikation.
+
+Arbetssätt
+I labbens del 1 använder vi INTE webbläsaren alls utan implementerar spelets funktioner i JavaScript helt textbaserat som ska köras i Node.js.  I labbens del 2 ska programmet anpassas så att den kan köras lokalt i webbläsaren, d.v.s utan någon webbserver. Därför använder vi bara de JavaScript funktioner från del 1 som endast har med spelets logik och struktur att göra, d.v.s ingen JavaScript-kod som har med inmating och utmatning att göra (vi har ju en annan view och controller (från konceptet MVC) eftersom att det är webben in och utdata som gäller. I del 2 kommer vi alltså lägga till HTML- och CSS-kod samt med hjälp av Web API koppla denna kod till de JavaScript-funktionerna som vi skrev i del 1. I del 3 ska vi återigen använda Node.js och skriva en liten webbserver som serverar de klienter som kopplar upp sig med spelfiler som vi skrev i del2.
+
+Vi hoppas att ni i kommande labbar använder samma arbetssätt som ovan. På det sättet tar sig fram med säkra steg hela tiden, och delar upp problemet på ett och samma sätt som alla applikationer i webbprogrammering kan delas upp.
+
+Chomp
+Chomp spelas med en chokladbar som består av ett antal rader och kolumner fyrkantiga chokladblock. Spelet spelas med två spelare. Spelarna i tur och ordning väljer ett block och äter upp det valda blocket samt alla block under och till höger om det valda blocket. Första blocket ifrån vänster i översta raden (P, se längre ner) är ett förgiftat block. Spelet går ut på att spelarna ska försöka undvika ta det blocket för då äter man det och man alltså förlorar.
+
+Del1
+Uppgiften är alltså att utveckla spelet Chomp i Node.js som kan spelas enligt beskrivningen ovan. När man startar programmet får man en välkomsttext sedan visas en chokladbar med 6 rader och 7 kolumner. Som utvecklare (INTE som användare) ska man lätt kunna ändra antal rader och kolumner . Se följande beskrivning för att förstå bättre, rödmarkerade text är användarens inmatning. Du behöver alltså installera den senaste LTS-versionen av Node.js. Links to an external site.
+
+När man startar spelet kommer det se ut så här:
+
+Välkommen till Chomp-spelet
+
+P	12	13	14	15	16	17
+21	22	23	24	25	26	27
+31	32	33	34	35	36	37
+41	42	43	44	45	66	47
+51	52	53	54	55	56	57
+61	62	63	64	65	66	67
+Första spelarens tur, välj ett blocknummer: 55
+
+Så när en spelare väljer block 55 (se ovan), alla block med nummer 55, 56, 57, 65, 66 och 67 försvinner från tabellen,
+
+P	12	13	14	15	16	17
+21	22	23	24	25	26	27
+31	32	33	34	35	36	37
+41	42	43	44	45	66	47
+51	52	53	54	55	56	57
+61	62	63	64	65	66	67
+d.v.s. spelplanen kommer att se ut som nedan:
+
+P	12	13	14	15	16	17
+21	22	23	24	25	26	27
+31	32	33	34	35	36	37
+41	42	43	44	45	66	47
+51	52	53	54			
+61	62	63	64		
+Andra spelarens tur, välj ett blocknummer: 24
+
+När den andra spelaren väljer 24 så kommer att block med nummer 24-27, 34-37,44-47 samt 54 och 64 försvinna från spelplanen.
+
+P	12	13	14	15	16	17
+21	22	23	24	25	26	27
+31	32	33	34	35	36	37
+41	42	43	44	45	66	47
+51	52	53	54			
+61	62	63	64		
+Och det spelplanen kommer att se ut som nedan:
+
+P	12	13	14	15	16	17
+21	22	23				
+31	32	33				
+41	42	43				
+51	52	53				
+61	62	63			
+Spelet fortsätter och spelarna turas om att välja sin del av chokladbaren. Till slut när endast P står kvar i hela spelplanen då presenteras vinnaren och spelet avslutas. En komplett körexempel finns längs ner i denna sida. Observera spelarna ska inte få välja P d.v.s. blocket högst upp till vänster och när endast P är kvar i spelplanen så är alltså spelet slut.
+
+I denna del ska du implementera följande funktioner enligt specifikationen längre ner i den här sedan:
+
+createChocolateBar
+printChocolateBar
+chomp
+checkWinner
+askCellNumber
+Specifika krav
+1. Funktionen createChocolateBar, skapar en matris (Arrayer i array)
+
+Indata till funktionen (inparametrar):	två talen antal rader  och antal kolumner
+Utdata (return): 	en matris (listor i lista)
+Exempel:	anrop till createChocolateBar(3,4) returnerar [ ['11', '12', '13', '14'], ['21', '22', '23', '24'], ['31', '32', '33', '34'] ]
+Test:	
+console.log( createChocolateBar(2,6)), skriver ut följande:
+[  [ '11', '12', '13', '14', '15', '16' ], [ '21', '22', '23', '24', '25', '26' ] ]
+console.log( createChocolateBar(0 ,0)), skriver ut följande:
+undefined
+console.log( createChocolateBar(-1,-1)), skriver ut följande:
+undefined
+ 
+
+2. Funktionen printChocolateBar, som bara skriver ut matrisen fint i tabellform.
+
+Indata till funktionen (inparametrar):	en matris som innehåller strängar
+Utdata (return): 	undefined
+Exempel:	
+anrop till printChocolateBar([ ['11', '12', '13', '14'], ['21', '22', '23', '24'], ['31', '32', '33', '34'] ]) returnerar undefined implicit (d.v.s. att du behöver inte ens skriva "return undefined" i din kod). När man har anropat funktionen så skriva följande ut av funktionen:
+
+11	12	13	14
+21	22	23	24
+31	32	33	34
+ 
+
+Test:	
+printChocolateBar( [  [ '11', '12', '13', '14', '15', '16' ], [ '21', '22', '23', '24', '25', '26' ] ] ) skriver ut följande:
+11 12 13 14 15 16
+21 22 23 24 25 26
+printChocolateBar( [  [ 'a', 'b', 'c' ], [ 'd' ],['e'] ] ) skriver ut följande:
+a b c
+d
+e
+ 
+
+3. Funktionen chomp som tar bort den del av matrisen från angiven rad och angiven kolumn i parameterlistan (se nedan)
+
+Indata till funktionen (inparametrar):	3 inparametrar: en matris, ett heltal för rad och ett heltal för kolumn
+Utdata (return)	returnerar en matris
+Exempel:	anrop till chomp( [ ['11', '12', '13', '14'], ['21', '22', '23', '24'], ['31', '32', '33', '34'] ] ,1 ,2) 
+returnera följande:
+
+[ ['11', '12', '13', '14'], ['21', '22'], ['31', '32'] ]
+
+Där första parametern, [ ['11', '12', '13', '14'], ['21', '22', '23', '24'], ['31', '32', '33', '34'] ], är matrisen.
+Den andra parametern, 1, är rad index och den sista parametern, 2, är kolumn index (Observera att talen 1 och 2 är beräknade index från användarens inmatning som alltså har varit 23)
+
+Funktionsanropet kommer att returnera följande:
+
+[ ['11', '12', '13', '14'], ['21', '22'], ['31', '32'] ]
+
+Den del av matrisen som tas bort är markerad med blå färg i följande:
+
+[ ['11', '12', '13', '14'], ['21', '22', '23', '24'], ['31', '32', '33', '34'] ]
+
+Följande vill förtydliga indexförhållanden i matirsen:
+
+radindex:		0		1		2	  
+kolumnindex:
+            
+ 
+[
+ 	0		1		2		3	 
+[	'11'	,	'12'	,	'13'	,	'14'	]
+  
+,
+0		1		2		3	 
+[	'21'	,	'22'	,	'23'	,	'24'	]
+  
+,
+0		1		2		3	 
+[	'31'	,	'32'	,	'33'	,	'34'	]
+  
+]
+Test:	
+console.log( chomp([  [ '11', '12', '13', '14', '15', '16' ], [ '21', '22', '23', '24', '25', '26' ] ], 0, 1 ) skriver ut följande:
+[  [ '11'], [ '21'] ]
+console.log( chomp([  [ '11', '12', '13', '14', '15', '16' ], [ '21', '22', '23', '24', '25', '26' ] ], 1, 2 ) skriver ut följande:
+       [  [ '11', '12', '13', '14', '15', '16' ], [ '21', '22' ] ]
+
+ 
+
+
+ 
+
+4. Funktionen checkWinner, kollar om det finns en vinnare
+
+Indata till funktionen (inparametrar)	en matris som innehåller strängar
+Utdata	returnera sant (true) om matrisens storlek är endast 1x1, d.v.s. en rad och en kolumn och falsk (false) i annat fall
+Exempel:	
+anrop till checkWinner([['blahonga']]) returnerar true
+
+Test:	
+console.log( checkWinner([['11']]) ) skriver ut true
+
+console.log( checkWinner([ ['11', '12']]) ) skriver ut false
+
+console.log( checkWinner([ ['11'], ['21']]) ) skriver ut false
+
+ 
+
+5. Funktionen askCellNumber, läser användarens val. Om användarens val inte finns i matrisen ska funktionen fråga igen tills använddaren matar in ett giltigt nummer som finns i matrisen.
+    Indata till funktionen (inparametrar): en matris som innehåller strängar.
+    Utdata (return): en array som består av användarens giltiga inmatningar (se nedan) 
+
+Normalt sett är javascript asynkron vilket innebär att bl.a. inmatning blockerar inte resten av koden, som vi kanske inte är riktigt vana med än. Därför får du använda den fördefinierade funktionen input, så att du får blockering vid inmatningen vilket liknar input i python eller scanner.nextLine() och BufferedReader.readline() i java. 
+
+ 
+
+Betrakta följande kod (text med röd färg är användarens inmatning):
+
+[row, col] = askCellNumber([ ["11", "12", "13", "14"], ["21", "22", "23", "24"], ["31", "32", "33", "34"] ])
+console.log(row,",",col)
+som ställer frågan nedan:
+
+Välj en ruta: 23
+1,2
+Ett annat anrop:
+
+[row, col] = askCellNumber([ ["11", "12", "13", "14"], ["21", "22", "23", "24"], ["31", "32", "33", "34"] ])
+console.log(row,",",col)
+som ställer frågan nedan:
+
+Välj en ruta: 44
+Fel val, ruta 44 finns inte i spelplanen, försök igen!
+Välj en ruta: 34
+2,3
+6. Modifiera funktionen createChocolateBar från del 1 så att matrisens första element med texten 11 ändras till P som står för Poison.
+
+7. Skriv huvudprogrammet till spelet, här nedan följer en algoritm som visar vad händer:
+
+        A. Skriv ett välkomst text och spelets instruktioner (se exempelkörningen längre ner)
+        B.  Skapa en spelplan med hjälp av funktionen createChocolateBar  med parametrarna för en chokladbar med 6 rader och 7 kolumner.
+        C. Visa spelplanen, genom att använda funktionen printChocolateBar 
+        D. Gör följande medan det inte finns någon vinnare, använd funktionen checkWinner :
+              D1. fråga den spelare som har tur att spela om nummer på en ruta, använd askCellNumber 
+             D2. modifiera matrisen efter spelarens inmatning, använd funktionen chomp
+              D3. visa spelplanen, mha funktionen printChocolateBar   
+              D4. byt tur till nästa spelare.
+E. presentera vinnaren
+
+8. Om en spelare anger nummer för en redan uppäten block ska spelaren varnas om detta och nya chanser ges till spelaren tills ett befintligt blocknummer anges av spelaren.
+
+9. Inga globala variabler i funktionerna, alla variabler i funktionerna måste vara parametrar och lokala variabler.
+
+10. Indata till funktionerna ska ske via parametrar(argumenter) och utdata från funktionerna ska göras via return.
+
+11. Programmet ska inte krascha om spelaren matar in bokstäver istället för siffror, utan att  användaren får en ny chans att mata in.
+
+12. Programmet ska inte krascha om spelaren matar in ett tal som inte existerar i tabellen, utan att spelaren ska få ett felmeddelande och få chansen att mata in igen.
+
+13. Inga kodupprepningar i programkoden.
+
+14. Programmet ska vara flexibelt, d.v.s storlek på spelplanen är dynamisk efter användarens val för storlek av spelplan.
+
+ 
+
+Ett komplett körexempel av färdiga spelet
+Välkommen till spelet Chomp.
+
+Instruktioner: I spelet kommer du utmanas om att välja ett blocknummer från spelplanen. Det valda blocket och alla block under och till högre kommer att raderas. Spelet går ut på att undvika välja P, den spelare som väljer P förlorar och den andra spelare vinner.
+
+ 
+
+P	12	13	14	15	16	17
+21	22	23	24	25	26	27
+31	32	33	34	35	36	37
+41	42	43	44	45	66	47
+51	52	53	54	55	56	57
+61	62	63	64	65	66	67
+Första spelarens tur, välj ett blocknummer: 11
+
+11 är ogilltigt blocknummer, försök igen: 55
+
+P	12	13	14	15	16	17
+21	22	23	24	25	26	27
+31	32	33	34	35	36	37
+41	42	43	44	45	66	47
+51	52	53	54			
+61	62	63	64			
+Andra spelarens tur, välj ett blocknummer: 65
+
+65 är ogilltigt blocknummer, försök igen: 24
+
+P	12	13	14	15	16	17
+21	22	23				
+31	32	33				
+41	42	43				
+51	52	53				
+61	62	63				
+Första spelarens tur, välj ett blocknummer: 12
+
+P						
+21						
+31						
+41						
+51						
+61						
+Andra spelarens tur, välj ett blocknummer: 21
+
+P
+
+Spelet är slut, Vinnare är den andra spelaren!
+
+Del2
+I den här delen ska du implementera kod som möjliggör att köra Chomp helt på webbläsaren. Du kommer att skapa två filer chomp.html, chomp.css och chomp.js som ska placeras i en och samma mapp. Och för att köra programmet dubbelklickar du på filen chomp.html i grafisk filhanterare.
+
+Följande två punkter är vad som ska göras:
+
+ Återanvända funktionerna från del 1 precis som de är (undvik att modifiera dem). Undantag för koden i huvudprogrammet samt funktionen askCellNumber som inte ska återanvändas överhuvudtaget.
+Modifiera och anpassa koden i funktionen printChocolateBar för webbläsare.
+Lägg till ytterligare JavaScript-funktioner som ersätter funktionalitet av koden i huvudprogrammet, printChocolateBar och askCellNumber.
+Specifika krav
+1. Klistra in all kod från del 1 förutom koden i huvudprogrammet och funktionen askCellNumber i filen chomp.js samt se till att du förstår koden i de övriga filerna: chomp.html och chomp.css.
+
+2. Modifiera funktionen printChocolateBar genom att använda sig av funktionerna i Web API som exempelvis createElement eller addEventListener, etc för att skapa spelplanen dynamiskt.
+
+3. Det återstår endast att implementera funktionen selectBlock(row, col)  selectBlock(gameboard, row, col)som anropas när användaren klickar på någon av knapparna.   
+   3.1. Ta bort vald block och alla block enligt spelets regler genom att anropa funktionen chomp.
+   3.2. Kolla om det finns en vinnare genom att anropa funktionen: checkWinner. Och i.s.f meddela i taggen med id="message" enligt Web API:n nedan, annars gå till punkt 3.4:
+
+document.getElementById("message").innerText = `The winner is the ${player[turn % 2]} player!`;
+
+   3.3. Visa den nya spelplanen efter borttagning av block genom att anropa printChocolateBar enligt raden nedan:
+
+document.getElementById("gameboardHolder").innerHTML = "";
+printChocolateBar(gameboard);
+
+   3.4. Om det gick bra att plocka bort byt tur för nästa spelare samt meddela användaren om vems tur det är att spela, använd Web API enligt nedan:
+
+document.getElementById("message").innerText = `The ${player[turn % 2]} player turn to select!`;
+4. HTML ska beskriva innehållet på webbsidan, CSS ska beskriva innehållets layout och stil. Dvs. missbruka ej HTML såsom <table> för att skapa layouten av spelplanen. Läs mer om godkänd layout i HTML Links to an external site..  (Tabeller används för tabulering av data, ej layout Links to an external site..)
+
+5. HTML, CSS och JavaScript måste ligga i seperata filer.
+
+6. Ni måste använda flera CSS attribut för class row.
+
+7. Webbsidan ska fungera korrekt i moderna webbläsare. Att sidan fungerar korrekt i Chrome och Firefox är ett minimum-krav.
+
+8. Alla HTML-element som används för att bygga upp rutorna av spelplanen måste vara dynamiskt genererade utav JavaScript.
+
+9. Er sida behöver inte vara den finaste, men den måste demonstrera att ni förstår hur HTML, CSS och JavaScript fungerar och sammanverkar. Er hemsida ska även demonstrera att ni förstår hur en hemsida ska struktureras.
+
+Del 3
+Nu kunde endast en webbläsare som startas på samma dator som filerna chomp.html, chomp.css och chomp.js finns köra programmet. Nu vill vi skriva en webbserver så att alla datorer med internet kan ladda spelet genom att kommunicera med en webbserver som du skriver i denna del.
+
+Servern ska kunna skicka tre filerna chomp.html, chomp.css och chomp.js till webbklienter som skickar en förfråga.
+
+Specifika krav
+1. Kolla om url attributen i request-objektet är bara en slash / och metoden GET då servern läser filen chomp.html och skickar innehållet i response, MIME-type ska vara text/html.
+
+2. Annars om url attributen i request-objektet är /chomp.js och metoden GET då ska filen chomp.js skickas till klienten som respons, MIME-type ska vara text/javascript.
+
+3. Annars om url attributen i request-objektet är /chomp.css och metoden GET då ska filen chomp.css skickas till klienten som respons, MIME-type ska vara text/css.
+
+4. Alla andra request förutom de som finns i punkterna 1, 2  och 3 ska ignoreras.
+
+Nu kan du öppna en webbläsare på din dator och ange url:en http://127.0.0.1:1234 Links to an external site. , då borde spelet laddats ner och köras.
+Dessutom kan nu alla webbläsare över världen ladda ner ditt spel från din dator via webbservern, bara du har en öppen ip-adress (t.ex på en ip-adress från KTH som börjar med 130.237.*.* och inte en wifi-router hemma eller liknande, då ip-adress börjar oftast med 192.168.*.*
