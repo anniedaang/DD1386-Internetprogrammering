@@ -1,0 +1,44 @@
+Mål
+HTTP protokollet, GET, POST och sessionskakor
+
+Översikt
+I den här labben ska ni implementera ett HTTP-baserat gissningsspel i Java genom att använda klassen java.net.Socket Links to an external site.. Spelet går ut på att spelaren får gissa på ett tal mellan 1 och 100 och servern ska gratulera vid korrekt gissning men vid felaktigt gissning ska spelaren få försöka igen samt en ledtråd (se exemplet). Den svåra biten i den här labben är hur servern ska hålla isär olika spelomgångar som spelas av olika spelare på flera simultant.
+
+För att du ska se hur din lösning ska fungera, har vi gjort ett exempel som du kan spela spelet (länken nedan). Det finns även en version som stegvis visar och förklarar vad som händer hos servern medan du spelar spelet, vilket kan hjälpa dig att förstå hur du ska genomföra labben. Länk till denna version visas när du har lyckats gissa rätt på det tänkta talet i exemplet https://course-dd1389-vt19.csc.kth.se/~vahid/guess.php. (Observer att denna demo implementerar INTE designmönstret PRG, se punkt 8 i specifika krav nedan)
+
+I git-repon för lab1 finner du hjälpfilen Server.java (om git-repon är inte färdig än ladda ner därför filen här så länge Server.java Download Server.java) som du kan kanske ha nytta av. Git-repon kommer att sättas upp inom kort.
+
+Specifika krav
+Servern kommer ihåg användaren genom att spara ett SESSION-ID i en kaka.
+Använd klassen java.net.ServerSockets Links to an external site.. I din gits-15 repo finns en exempelkod, startfiler, till din hjälp för att lättare komma igång. Exempelkoden är en sever som tar emot request från klienten och beroende på om det en GET- eller POST-request gör den olika saker. Utgå från koden och bygg den vidare till en komplett lösning.
+Du får INTE använda javascript i din lösning.
+Vid en gissning ska servern svarar med ledtråden om vilken räckvidd din nästa gissning ska vara, se exemplet.
+Ni ska spara HTML:en i egen fil guess.html. Filen ska användas som en mall av din server-program. Html-filen läses av er server-program som med hjälp av ett unikt påhittat ankare sätter in de värden som ändras mellan gissningar. Se exempelvis moustache för inspiration (notera dock att ni inte får använda ett externt bibliotek).
+HTML:en måste vara valid. Enklaste sättet att kolla det är att använda WC3 validator, https://validator.w3.org Links to an external site..
+När användaren gissar rätt ska följande:
+Sessionen avslutas, vilket inkluderar att sessionskakan invalideras, och all info om sessionen och avklarade spelomgången raderas från minnet.
+Användaren får en sida med information om att gissningen var korrekt med antal gjorda gissningar, se exemplet.
+Det ska finnas en knapp (länk) så att användaren kan starta en ny omgång, se exemplet.
+Om användaren uppdaterar sidan genom att klicka in i adressfältet och trycka på enter ska programmet visa samma sida, se exemplet
+Om användaren uppdaterar sidan genom att klicka in i adressfältet och trycka på enter ska programmet visa samma sida, se exemplet. (detta gäller alla sidor förutom sidan som meddelar att man har gissat rätt) [denna krav (8) hade av misstag hamnat under krav 7 i tidigare version av labben]
+Din lösning ska vara baserad på webbutvecklingsdesginmönstret PRG Links to an external site. (Post/Redirect/Get) .
+En klients handling på webbläsaren ska inte krascha servern.
+Tips:
+
+Du kan använda dig av HTML:en från vår exempelsida genom att använda en funktion som finns hos webbläsarens som visar källkoden. Funktionen brukar finnas under menyn och kallas “Visa källkod”. Fokusera dock på att få igång servern först. För att hjälpa er så har vi gett er skelett (se startfiler i gits-15) i Java och Python.
+Starta med att servern hanterar bara en klient åt gången och expandera därifrån.
+Bonusuppgift X1
+Cookie theft: En server kan bli lurad av en klient, K1, genom att klienten skickar kaka som tillhör en annan klient, K2, då servern kommer tro att requesten hör till klienten som äger kakan d.v.s. K2. Det resulterar att servern skickar respons till K1 med (känslig) information som hör till K2. Det finns etablerade sätt för att förhindra "cookie-stealing" som vi kommer att komma ikontakt med under senare delen av kursen, men i denna uppgift ska du skriva ett eget sätt så att servern avbryter anslutningen så snart den misstänker Cookie stealing attack.
+
+För att hålla lösningen enkel och inte blanda in massa krypteringar och liknande nöjer vi oss med en lösning baserad på antagandet att ip-adressen är unika för varje klient. En lösning är att se till att servern lagrar klientens ip-adress vid första anslutning och lagrar klientens ip-adress och kakan som skickas till klienten i en datastruktur (förslagsvis en java.util.HashMap Links to an external site. ). Nu kan servern kolla att kakan som emottas från en klient är mappad till klientens ip-adress, annars är det Cookie stealing attack och anslutningen ska avbrytas.
+
+För att testa att din server inte blir lurad av en kaktjuv kan du använda detta program Download detta program (reserverar för ev. buggar). Programmet skriver ut "Robust server" om servern stänger av förbindelset så snabbt upptäcker att det inte är kakägaren som skikcar requesten.
+
+ 
+
+Förtydligande om cookie stealing: Anta att vi har två klienter med ip-adresserna ipA och ipB samt kakorna sidA och sidB. Se följane fall:
+
+ client( ipA, sidA ) && client( ipB, sidB ) => OK, olika kakor skickats från olika datorer (ip-adresser)
+ client( ipA, sidA ) && client( ipA, sidB ) => OK, olika kakor skickats från samma datorer (ip-adress)
+ client( ipA, sidA ) && client( ipB, sidA ) => COOKIE THEFT, samma kaka skickats från olika datorer (ip-adresser)
+ client( ipA, sidA ) && client( ipA, sidA ) => OK, samma kaka skickats flera ggr från samma dator (ip-adress) 
