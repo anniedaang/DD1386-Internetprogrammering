@@ -1,0 +1,31 @@
+{
+  "author": "",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  },
+  "description": "",
+  "devDependencies": {
+    "eslint": "^8.32.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.6.0",
+    "html-validate": "^7.13.1",
+    "prettier": "2.8.3",
+    "run-script-os": "^1.1.6",
+    "stylelint": "^14.16.1",
+    "stylelint-config-prettier": "^9.0.4",
+    "stylelint-config-standard": "^29.0.0"
+  },
+  "license": "ISC",
+  "name": "lab2",
+  "private": "true",
+  "scripts": {
+    "lint": "run-script-os",
+    "lint:darwin:linux": "html-validate 'src/**/*.html' ; stylelint 'src/**/*.css' ; eslint 'src/**/*.js' ; prettier --check src/",
+    "lint:fix": "run-script-os",
+    "lint:fix:darwin:linux": "html-validate 'src/**/*.html' ; stylelint --fix 'src/**/*.css' ; eslint --fix 'src/**/*.js' ; prettier --write src/",
+    "lint:fix:win32": "html-validate src/**/*.html & stylelint --fix src/**/*.css & eslint --fix src/**/*.js & prettier --write src/",
+    "lint:win32": "html-validate src/**/*.html & stylelint src/**/*.css & eslint src/**/*.js & prettier --check src/"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

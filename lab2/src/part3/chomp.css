@@ -1,0 +1,23 @@
+body {
+  background: #c30000;
+  color: #ffffff;
+}
+
+/*.row {
+  background: #542f27;
+  color: #d9ccd2;
+  padding: 2px;
+  border: 2px outset;
+  height: 24px;
+  width: 24px;
+}*/
+
+.block {
+  background: #723a09;
+  color: #ffffff;
+  padding: 6px;
+  border: 6px outset;
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+}
